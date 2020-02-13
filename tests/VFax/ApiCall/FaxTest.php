@@ -33,6 +33,7 @@ class FaxTest extends TestCase
             '0212345678',
             '0212345678',
             [
+                __DIR__.'/files/sample.pdf'
             ],
             ''
         );

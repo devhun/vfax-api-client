@@ -18,18 +18,11 @@ class CurlAdapter extends AbstractAdapter
      */
     protected $apiToken;
 
-    /**
-     * The API responseCode.
-     *
-     * @var int
-     */
-    protected $responseCode;
-
     public function __construct($apiToken)
     {
         $this->apiToken = $apiToken;
-        $this->responseCode = 0;
 
+        $this->endpoint = VFaxClient::ENDPOINT;
     }
 
     /**
@@ -81,10 +74,16 @@ class CurlAdapter extends AbstractAdapter
             case 'POST':
                 $defaults[CURLOPT_URL] = $url;
                 $defaults[CURLOPT_POST] = true;
-                array_push($defaults[CURLOPT_HTTPHEADER], 'Content-Type: multipart/form-data; charset=UTF-8');
-                $postData = $args;
-                foreach ($files as $index => $file) {
-                    $postData["file[$index]"] = curl_file_create($file);
+
+                if (is_array($files) && !empty($files)) {
+                    array_push($defaults[CURLOPT_HTTPHEADER], 'Content-Type: multipart/form-data; charset=UTF-8');
+                    $postData = $args;
+                    foreach ($files as $key => $val) {
+                        $postData[$key] = curl_file_create($val, mime_content_type($val), $key);
+                    }
+                } else {
+                    array_push($defaults[CURLOPT_HTTPHEADER], 'Content-Type: application/x-www-form-urlencoded');
+                    $postData = http_build_query($args);
                 }
                 $defaults[CURLOPT_POSTFIELDS] = $postData;
                 break;
@@ -100,20 +99,20 @@ class CurlAdapter extends AbstractAdapter
         $client = curl_init();
         curl_setopt_array($client, $defaults);
         $response = curl_exec($client);
-        $code = curl_getinfo($client, CURLINFO_HTTP_CODE);
-        curl_close($client);
 
-        if ($code !== 200) {
-            // Check to see if there were any API exceptions thrown.
-            return $this->isAPIError($client, $response);
-        }
+        // Check to see if there were any API exceptions thrown.
+        // If so, then error out, otherwise, keep going.
+        $this->isAPIError($client, $response);
+        // The call above also closes the curl
 
         return json_decode($response, true);
     }
 
-    protected function isAPIError($responseObj, $resposne)
+    protected function isAPIError($responseObj, $response)
     {
         $code = curl_getinfo($responseObj, CURLINFO_HTTP_CODE);
         curl_close($responseObj);
+
+//        $this->reportError($code, $response);
     }
 }

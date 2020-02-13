@@ -52,7 +52,7 @@ class GuzzleHttpAdapter extends AbstractAdapter
             'base_uri' => $endpoint,
             'headers'  => [
                 'User-Agent'   => sprintf('%s v%s (%s)', VFaxClient::AGENT, VFaxClient::VERSION, 'https://github.com/devhun/vfax-api-client'),
-                'Authorization' => "Bearer $this->apiToken",
+                'Authorization' => "Bearer $this->apiToken"
             ],
         ];
 
@@ -101,15 +101,18 @@ class GuzzleHttpAdapter extends AbstractAdapter
                 array_push($postData, [
                     'name'     => $key,
                     'contents' => $val,
+                    'type' => 'application/json',
+                    'Content-Type' => 'application/json'
                 ]);
             }
             $postMode = 'multipart';
 
-            foreach ($files as $file) {
+            foreach ($files as $key => $val) {
                 array_push($postData, [
-                    'name'     => 'file',
-                    'contents' => fopen($file, 'r'),
-                    'filename' => basename($file),
+                    'name'     => $key,
+                    'contents' => fopen($val, 'r'),
+                    'filename' => basename($val),
+                    'type' => mime_content_type($val)
                 ]);
             }
         } else {

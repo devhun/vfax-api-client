@@ -8,7 +8,7 @@ use DevHun\VFax\ApiCall\Fax;
 class VFaxClient
 {
     const ENDPOINT = 'https://api.vfax.co.kr/vFax/v1/';
-    const VERSION = '1.0';
+    const VERSION = '1.0.1';
     const AGENT = 'VFax PHP API Client';
 
     /**

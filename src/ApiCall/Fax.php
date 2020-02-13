@@ -18,8 +18,17 @@ class Fax extends AbstractApiCall
             'reqDate' => $reqDate,
             'desName' => ''
         ];
-        $json_args = json_encode(['form' => $args]);
+        $json_args = ['form' => json_encode($args)];
 
-        return $this->adapter->post('sendFax', $args, $files);
+        $index = 0;
+        $file_arguments = [];
+        foreach ($files as $file) {
+            if (file_exists(realpath($file))) {
+                $file_arguments["file[{$index}]"] = $file;
+                $index++;
+            }
+        }
+
+        return $this->adapter->post('sendFax', $json_args, $file_arguments);
     }
 }
