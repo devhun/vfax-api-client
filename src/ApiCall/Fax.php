@@ -8,16 +8,18 @@ class Fax extends AbstractApiCall
     {
         $args = [
             'cid' => $callback,
-            'coverType' => '1',
+            'coverType' => '',
             'coverSubject' => '',
             'coverContent' => '',
+            'coverSendDate' => '',
             'coverSendName' => '',
             'subject' => '',
-            'destFax' => $destFax,
+            'desFax' => $destFax,
+            'desName' => '',
             'callback' => '',
-            'reqDate' => $reqDate,
-            'desName' => ''
+            'reqDate' => $reqDate
         ];
+
         $json_args = ['form' => json_encode($args)];
 
         $index = 0;
